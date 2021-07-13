@@ -71,7 +71,7 @@ m1 <- metaprop(PASC_overall, sample_size, data = dat, studlab = paste(Author, ye
 
 
 #Influence analysis  using leave-one-out -----------------------------------------
-```{r, message=F,echo=FALSE,fig.height=6, fig.width=6, echo=FALSE,warning=FALSE}
+```{r, message=F,echo=FALSE,fig.height=8, fig.width=6, echo=FALSE,warning=FALSE}
 #pdf("figs/InfluencialPlots.pdf", width = 15, height = 25)
 forest(metainf(m1, pooled = "random"))
 #dev.off()
@@ -101,15 +101,15 @@ pdf("figs/FunnelPlotF.pdf", width = 10, height = 10)
 funnel(m1,xlab = "log transformed proportions",studlab = TRUE)
 dev.off()
 
-metabias(m1, method="linreg")
-metabias(m1, method="rank")
+metabias(m1, method="linreg")# Egger P-value:p-value < 0.0001
+metabias(m1, method="rank")# Begg P-value:p-value = 0.7986
 ```
 
 
 
 
-# Plot figure 1: Overall
-```{r,fig.height=6, fig.width=6, echo=FALSE,warning=FALSE}
+# Plot figure 1: Overall point estimate = 55.59
+```{r,fig.height=8, fig.width=6, echo=FALSE,warning=FALSE}
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m1,
        leftlabs = c("Author, Year of publication, Country", "PASC+", "Sample size"),
@@ -130,10 +130,11 @@ forest(m1,
 
 
 # Plot figure 2: Follow-up time
-```{r,fig.height=7, fig.width=5, echo=FALSE,warning=FALSE}
+```{r,fig.height=8.5, fig.width=6, echo=FALSE,warning=FALSE}
 
 #m1$bylevs <- c("Short-term", "Medium-term", "Long-term")
 mtime<- update(m1, byvar=Period,print.byvar=F)
+
 #mtime$bylevs <- c("Short-term", "Medium-term", "Long-term")
 #arrange(desc(sample_size))
 #pdf("figs/FollowUp.pdf", width = 15, height = 15)
@@ -153,7 +154,7 @@ forest(mtime,
        xlim = c(0, 100), at = c(0,20,40, 60, 80, 100),pscale = 100,
        backtransf = T)
 #dev.off()
-table(data$Period)
+#table(data$Period)
 
 ```
 
@@ -161,8 +162,9 @@ table(data$Period)
 
 
 # Plot figure 3: WHO Region
-```{r,fig.height=8, fig.width=5, echo=FALSE,warning=FALSE}
+```{r,fig.height=10, fig.width=5, echo=FALSE,warning=FALSE}
 mw<- update(m1, byvar=WHO,print.byvar=F)
+
 #pdf("figs/Region.pdf", width = 15, height = 20)
 forest(mw,
        leftlabs = c("Author, Year of publication", "PASC+", "Sample size"),
@@ -186,8 +188,9 @@ forest(mw,
 
 
 # Plot figure 4: World Bank Income group
-```{r,fig.height=7, fig.width=6, echo=FALSE,warning=FALSE}
+```{r,fig.height=8, fig.width=6, echo=FALSE,warning=FALSE}
 mi<- update(m1, byvar=Income,print.byvar=F)
+
 #pdf("figs/Income.pdf", width = 10, height = 13)
 forest(mi,
        leftlabs = c("Author, Year of publication", "PASC+", "Sample size"),
@@ -286,7 +289,7 @@ g2 <- data %>%
   theme_bw(base_size = 14) +
   theme(strip.text = element_text(face = "bold", size = 13))
 
-
+g2
 #ggpubr::ggarrange(g1, g2, ncol = 1, common.legend = T, legend = "right")
 ggsave("figs/FigureMeta.pdf", width = 10, height = 8)
 
@@ -321,7 +324,7 @@ round(exp(coef(summary(model_A))[-1,c("estimate", "ci.lb", "ci.ub")]), 2)
 
 ```{r Age}
 
-data$Age=data$median_age/5
+data$Age=data$mean_age/5
 model_A <- rma.glmm( xi=PASC_overall, ni=sample_size, measure="PLO",  mods = ~ Age,  dat=data)
 print(model_A,digits=3)
 model_A 
@@ -398,7 +401,7 @@ round(exp(coef(summary(res))[-1,c("estimate", "ci.lb", "ci.ub")]), 2)
 
       
       # constitutional symptoms-------------------------------------
-```{r,fig.height=12, fig.width=6, echo=FALSE,warning=FALSE}
+```{r,fig.height=12.5, fig.width=6, echo=FALSE,warning=FALSE}
 data=read.csv("AnalysisPASC3.csv")
 l=reshape(data, 
           varying=c("fatigue_or_muscle_weakness_n","joint_pain","Myalgia","Flu.like.sxs_rhinitis", "fever","Pain","weight.loss._5perc"),
@@ -421,6 +424,7 @@ m_cons <- metaprop(Constitutional, sample_size, data = dat, studlab = paste(Auth
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_cons1<- update(m_cons, byvar=Outocome,print.byvar=F)
+
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_cons1,
@@ -447,7 +451,7 @@ forest(m_cons1,
 
 
 # PULMONARY-------------------------------------
-```{r,fig.height=12, fig.width=6, echo=FALSE,warning=FALSE, eval=T}
+```{r,fig.height=14, fig.width=6, echo=FALSE,warning=FALSE, eval=T}
 data=read.csv("AnalysisPASC3.csv")
 l=reshape(data, varying=list(samplesize = c("sample_size", "chest_imaging_abnormality_N", "pulmonary_diffusion_abnormality_N","sample_size","sample_size","sample_size","sample_size","sample_size"),
                             pulmonary = c("cough", "chest_imaging_abnormality_n", "pulmonary_diffusion_abnormality._less_80perc_n","Restriction_.spirometry","Dyspnea","Fibrosis", "ground_glass_opacification","O2.use")), 
@@ -476,6 +480,7 @@ m_pulm<- metaprop(n, N, data = dat, studlab = paste(Author, year_publication,  s
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_pulm1<- update(m_pulm, byvar=times,print.byvar=F)
+
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_pulm1,
@@ -524,6 +529,7 @@ m_card <- metaprop(Cardiac, sample_size, data = dat, studlab = paste(Author, yea
 
 m_card1<- update(m_card, byvar=Outocome,print.byvar=F)
 
+
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_card1,
        leftlabs = c("Author, Year of publication", "Cardiac", "Sample size"),
@@ -546,8 +552,8 @@ forest(m_card1,
 
 
 
-# PSYCHIATRIC-------------------------------------
-```{r,fig.height=5, fig.width=6, echo=FALSE,warning=FALSE, eval=T}
+# PSYCHIATRIC/mental health-------------------------------------
+```{r,fig.height=5.5, fig.width=6, echo=FALSE,warning=FALSE, eval=T}
 data=read.csv("AnalysisPASC3.csv")
 l=reshape(data, varying=list(samplesize = c("anxiety_or_depression_N", "sample_size","sample_size","sample_size"),
                             pulmonary = c("anxiety_or_depression_n", "PTSD", "GAD","sleep_abnormality_n")), 
@@ -575,6 +581,7 @@ m_psy <- metaprop(n, N, data = dat, studlab = paste(Author, year_publication,  s
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_psy1<- update(m_psy, byvar=times,print.byvar=F)
+
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_psy1,
@@ -623,6 +630,7 @@ m_functional<- metaprop(Functional_Mobility, sample_size, data = dat, studlab = 
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_functional1<- update(m_functional, byvar=Outocome,print.byvar=F)
+#m_functional1
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_functional1,
@@ -647,7 +655,7 @@ forest(m_functional1,
 
 
 # Neuro-------------------------------------
-```{r,fig.height=8, fig.width=6, echo=FALSE,warning=FALSE}
+```{r,fig.height=10.5, fig.width=6, echo=FALSE,warning=FALSE}
 data=read.csv("AnalysisPASC3.csv")
 l=reshape(data, 
           varying=c("headache","Mnesinc.complaints","Concentration","Cognitive.Impairment","Taste_disorder","smell_disorder"),
@@ -670,6 +678,7 @@ m_neuro<- metaprop(Neurocognition, sample_size, data = dat, studlab = paste(Auth
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_neuro1<- update(m_neuro, byvar=Outocome,print.byvar=F)
+#m_neuro1
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_neuro1,
@@ -694,7 +703,7 @@ forest(m_neuro1,
 
 
 # GI-------------------------------------
-```{r,fig.height=5, fig.width=6, echo=FALSE,warning=FALSE}
+```{r,fig.height=5.5, fig.width=6, echo=FALSE,warning=FALSE}
 data=read.csv("AnalysisPASC3.csv")
 l=reshape(data, 
           varying=c("Digestive.Disorders","Diarrhea_vomiting","Abdominal.Pain","decreased_appetite"),
@@ -717,6 +726,7 @@ m_GI<- metaprop(GI, sample_size, data = dat, studlab = paste(Author, year_public
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_GI1<- update(m_GI, byvar=Outocome,print.byvar=F)
+#m_GI1
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_GI1,
@@ -763,6 +773,7 @@ m_derm<- metaprop(Derm, sample_size, data = dat, studlab = paste(Author, year_pu
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_derm1<- update(m_derm, byvar=Outocome,print.byvar=F)
+#m_derm1
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_derm1,
@@ -811,6 +822,7 @@ m_ent<- metaprop(ENT, sample_size, data = dat, studlab = paste(Author, year_publ
                method.tau = "ML", method = "GLMM",sm = "PLOGIT")
 
 m_ent1<- update(m_ent, byvar=Outocome,print.byvar=F)
+#m_ent1
 
 #pdf("figs/Overall.pdf", width = 15, height = 15)
 forest(m_ent1,
@@ -830,5 +842,24 @@ forest(m_ent1,
        backtransf = T)
 #dev.off()
 
+```
+
+
+# Mean and sd for age: 54 (8.9)
+
+```{r}
+
+mean(data$mean_age, na.rm = T) # 54.35849
+sd(data$mean_age, na.rm = T) #8.916481
+```
+
+
+
+# Median and IQR for Score: 6.0 (5 to 7)
+
+```{r}
+
+#summary(data$Total.NOS)
+summary(data$male_perc)
 ```
 
